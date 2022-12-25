@@ -1,0 +1,25 @@
+steps:
+  - name: 'gcr.io/cloud-builders/git'
+    secretEnv: ['SSH_KEY']
+    entrypoint: 'bash'
+    args:
+    - -c
+    - |
+      echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+      chmod 400 /root/.ssh/id_rsa
+      ssh-keyscan -t rsa github.com > known_hosts.github
+      cp known_hosts.github /root/.ssh/known_hosts
+# cat known_hosts.github 
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
+  
+# Clone the repository
+  - name: 'gcr.io/cloud-builders/git'
+    args:
+    - clone
+    - --recurse-submodules
+    - git@github.com:Hasimk/cicd-sample.git
+    volumes:
+    - name: 'ssh'
+      path: /root/.ssh
